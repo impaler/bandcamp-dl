@@ -1,0 +1,20 @@
+{
+  "name": "nightmare-bandcamp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "filesize": "3.3.0",
+    "lodash.partialright": "4.1.3",
+    "mkdirp": "0.5.1",
+    "nightmare": "2.2.0",
+    "promise-sequences": "0.0.2",
+    "request": "2.69.0",
+    "unzip-wrapper": "^0.1.5"
+  },
+  "devDependencies": {},
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
