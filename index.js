@@ -10,16 +10,13 @@ const mkdirp = require('mkdirp')
 const sanitize = require('sanitize-filename')
 
 const DEFAULT_DOWNLOAD_PATH = path.join(process.cwd(), '.bandcamp-dl')
-const show = !(require('util').isNullOrUndefined(process.env['NB_SHOW']))
 
 const DEFAULT_OPTIONS = {
     username: process.env['NB_USER'],
     password: process.env['NB_PASS'],
-    format: process.env['NB_FORMAT'] || 'MP3 320',
-    show,
+    debug: false,
     userAgent: process.env['USER_AGENT'] || 'Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko) Chromium/58.0.3029.110 Chrome/58.0.3029.110 Safari/537.36',
     concurrent: process.env['NB_CONCURRENT'] || 1,
-    waitTimeout: show ? 10000000 : 30 * 1000,
     downloadPath: process.env['NB_DEST'] || DEFAULT_DOWNLOAD_PATH
 }
 
@@ -31,25 +28,36 @@ const loginPasswordInputSelector = '#password-field'
 const loginButtonSelector = 'button[type=submit]'
 
 function downloadCollection (options) {
-    options = Object.assign({}, DEFAULT_OPTIONS, options)
-    options.paths = { downloads: options.downloadPath }
+    options = assignOptions(options)
 
-    validateDownloadDestination(options)
-
-    return getCollectionData(options)
+    return loadCollectionData(options)
+        .then(partialRight(filterCollectionSearch, options))
         .then(partialRight(downloadAlbumUrls, options))
 }
 
 module.exports = downloadCollection
 
-function validateDownloadDestination (options) {
+function assignOptions (options) {
+    const debugOptions = !!options.debug ?
+    { show: true, waitTimeout: 10000000 } :
+    { show: false, waitTimeout: 30 * 1000 }
+
+    options = Object.assign({}, DEFAULT_OPTIONS, options, debugOptions)
+    options.paths = { downloads: options.downloadPath }
+
     mkdirp.sync(options.downloadPath)
-    console.log(`Download collection to the directory: ${options.downloadPath}`)
+    console.log(`The download directory is resolved as ${options.downloadPath}`)
+    if (options.debug) {
+        console.log(`
+Running with options:
+${JSON.stringify(options, null, 2)}
+        `)
+    }
 
     return options
 }
 
-function getCollectionData (options) {
+function loadCollectionData (options) {
     console.log(`Logging in as user ${options.username}`)
 
     return new Nightmare(options)
@@ -85,8 +93,21 @@ function evaluateCollectionData () {
     })
 }
 
+function filterCollectionSearch (collection, options) {
+    if (options.search) {
+        const search = new RegExp(options.search)
+        collection = collection.filter(item => search.test(item.title) || search.test(item.artist))
+        const logAlbum = album => `  - ${album.artist} - ${album.title}`
+        console.log(`The search ${options.search} matched ${collection.length} albums.`)
+        console.log(`${collection.map(logAlbum).join('\n')}`)
+    }
+    return collection
+}
+
 function downloadAlbumUrls (collection, options) {
-    console.log(`Found ${collection.length} albums in your collection, now ${options.concurrent} at a time`)
+    console.log(`
+    Now downloading ${options.concurrent} at a time
+    `)
     const manifestPath = path.join(options.paths.downloads, `${Date.now()}-collection.json`)
     fs.writeFileSync(manifestPath, JSON.stringify(collection, null, 4))
 
