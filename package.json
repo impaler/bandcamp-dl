@@ -1,13 +1,12 @@
 {
   "name": "nightmare-bandcamp",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "",
   "main": "index.js",
   "bin": {
     "bandcamp-dl": "./bin/bandcamp-dl.js"
   },
   "dependencies": {
-    "filesize": "3.3.0",
     "lodash.partialright": "4.1.3",
     "mkdirp": "0.5.1",
     "nightmare": "2.10.0",
