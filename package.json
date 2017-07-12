@@ -1,8 +1,7 @@
 {
-  "name": "nightmare-bandcamp",
+  "name": "bandcamp-dl",
   "version": "2.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A browser automation script to batch download your private bandcamp collection.",
   "bin": {
     "bandcamp-dl": "./bin/bandcamp-dl.js"
   },
@@ -15,9 +14,10 @@
     "promise-sequences": "0.0.3",
     "sanitize-filename": "1.6.1"
   },
-  "devDependencies": {},
-  "scripts": {},
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "keywords": [
+    "bandcamp",
+    "music",
+    "download"
+  ],
+  "license": "MIT"
 }
